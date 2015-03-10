@@ -14,10 +14,14 @@ import android.view.MenuItem;
 
 public class MainActivity extends Activity {
 
+    Boolean intentSend;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        intentSend = false;
 
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -25,6 +29,7 @@ public class MainActivity extends Activity {
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
+                intentSend = true;
                 checkForLinkFromIntent(intent); // Handle text being sent
             }
         }
@@ -33,7 +38,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        checkClipBoardForLink();
+
+        if (!intentSend){
+            checkClipBoardForLink();
+        }
     }
 
     @Override
@@ -76,6 +84,7 @@ public class MainActivity extends Activity {
     }
 
     private void checkForLink(String text){
+        text = text.toLowerCase();
         if (text.length() == 0) {
             return;
         }
