@@ -18,12 +18,22 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+                checkForLinkFromIntent(intent); // Handle text being sent
+            }
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        checkForLink();
+        checkClipBoardForLink();
     }
 
     @Override
@@ -48,28 +58,37 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkForLink(){
+    private void checkClipBoardForLink(){
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = clipboard.getPrimaryClip();
         String clipboardText = "";
         if (clip != null) {
             ClipData.Item item = clip.getItemAt(0);
-            clipboardText = item.coerceToText(this).toString();
+            checkForLink(item.coerceToText(this).toString());
         }
         else{
             return;
         }
-
-        if (clipboardText.length() == 0) {
-            return;
-        }
-
-        if ( !(clipboardText.substring(0, 5).equals("http:") || clipboardText.substring(0, 5).equals("https")) ){
-            return;
-        }
-
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(clipboardText));
-        startActivity(browserIntent);
     }
 
+    private void checkForLinkFromIntent(Intent intent){
+        checkForLink(intent.getStringExtra(Intent.EXTRA_TEXT));
+    }
+
+    private void checkForLink(String text){
+        if (text.length() == 0) {
+            return;
+        }
+        else if ( !(text.substring(0, 5).equals("http:") || text.substring(0, 5).equals("https")) ){
+            return;
+        }
+        else{
+            sendLink(text);
+        }
+    }
+
+    private void sendLink(String link){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+        startActivity(browserIntent);
+    }
 }
