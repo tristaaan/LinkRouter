@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
@@ -69,13 +70,12 @@ public class MainActivity extends Activity {
     private void checkClipBoardForLink(){
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = clipboard.getPrimaryClip();
-        String clipboardText = "";
         if (clip != null) {
             ClipData.Item item = clip.getItemAt(0);
             checkForLink(item.coerceToText(this).toString());
         }
         else{
-            return;
+            showToastAndDie("no text in clipboard");
         }
     }
 
@@ -85,11 +85,9 @@ public class MainActivity extends Activity {
 
     private void checkForLink(String text){
         text = text.toLowerCase();
-        if (text.length() == 0) {
-            return;
-        }
-        else if ( !(text.substring(0, 5).equals("http:") || text.substring(0, 5).equals("https")) ){
-            return;
+        if (text.length() == 0 ||
+          !(text.startsWith("http:") || text.startsWith("https")) ) {
+            showToastAndDie("text is too short or not a url");
         }
         else{
             sendLink(text);
@@ -99,5 +97,11 @@ public class MainActivity extends Activity {
     private void sendLink(String link){
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
         startActivity(browserIntent);
+        this.finish();
+    }
+
+    private void showToastAndDie(String str){
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+        this.finish();
     }
 }
