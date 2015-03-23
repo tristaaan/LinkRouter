@@ -84,9 +84,9 @@ public class MainActivity extends Activity {
     }
 
     private void checkForLink(String text){
-        text = text.toLowerCase();
-        if (text.length() == 0 ||
-          !(text.startsWith("http:") || text.startsWith("https")) ) {
+        String tmpText = text.toLowerCase();
+        if (tmpText.length() == 0 ||
+          !(tmpText.startsWith("http:") || tmpText.startsWith("https")) ) {
             showToastAndDie("text is too short or not a url");
         }
         else{
